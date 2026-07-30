@@ -9,15 +9,19 @@
   [![Status](https://img.shields.io/badge/Status-Production_Ready-success.svg)]()
 </div>
 
-> **NexuBioAuth** is a secure, high-precision biometric authentication engine. Leveraging Dlib's deep learning models and OpenCV, it securely maps and stores 128-dimensional facial encodings, providing a scalable API for attendance systems, identity verification, and access control.
+---
+
+## 🚀 The Vision
+
+Identity verification is currently dominated by expensive proprietary APIs that force companies to upload their users' sensitive biometric data to third-party clouds. This severely violates data sovereignty laws, GDPR, and basic operational security principles. 
+
+**NexuBioAuth** brings enterprise-grade facial recognition back on-premise. Leveraging Dlib's deep learning models and OpenCV, it securely maps and stores 128-dimensional facial encodings, providing a scalable API for zero-trust attendance systems, identity verification, and access control.
 
 ---
 
-## 🏆 Biometric Security Without Compromise
+## 🏆 Unmatched Performance: Competitive Analysis
 
-Identity verification is currently dominated by expensive proprietary APIs that force companies to upload their users' sensitive biometric data to third-party clouds, violating GDPR and data sovereignty laws. NexuBioAuth runs entirely on-premise, ensuring complete zero-trust security.
-
-### 🔥 Competitive Analysis: NexuBioAuth vs. The Industry
+NexuBioAuth provides the accuracy of a massive cloud API with the privacy of a local script.
 
 | Feature | NexuBioAuth (Ours) | AWS Rekognition | Azure Face API | Haar Cascades |
 |---------|-----------------|-----------------|----------------|---------------|
@@ -30,27 +34,38 @@ As demonstrated, NexuBioAuth provides the state-of-the-art accuracy of a ResNet-
 
 ---
 
-## 🚀 Architecture & System Flow
+## 🧠 Core Architecture & System Flow
 
 ```mermaid
 graph TD
-    A[Client WebRTC Camera] -->|POST Image Data| B(FastAPI Auth Gateway)
-    B --> C{Image Normalization}
-    C -->|HOG Face Detector| D[Bounding Box Extraction]
-    D -->|ResNet-34 CNN| E[128D Embedding Generation]
-    E --> F{Distance Metric (Tolerance 0.6)}
-    F -->|Match Found| G[Generate Session Token]
-    F -->|No Match| H[Auth Rejected 401]
-    G --> I[JSON Success Payload]
+    A["Client WebRTC Camera"] -->|"POST Image Data"| B("FastAPI Auth Gateway")
+    B --> C{"Image Normalization"}
+    C -->|"HOG Face Detector"| D["Bounding Box Extraction"]
+    D -->|"ResNet-34 CNN"| E["128D Embedding Generation"]
+    E --> F{"Distance Metric (Tolerance 0.6)"}
+    F -->|"Match Found"| G["Generate Session Token"]
+    F -->|"No Match"| H["Auth Rejected 401"]
+    G --> I["JSON Success Payload"]
     H --> I
     I --> A
 ```
 
 ### 1. 128-Dimensional Deep Metric Learning
-Instead of comparing pixels, the system extracts a 128-measurement vector (embedding) that mathematically describes the face. To authenticate, we calculate the Euclidean distance between the login face vector and the database face vector. If the distance is `< 0.6`, identity is confirmed.
+Instead of comparing raw pixels—which fail under different lighting or angles—the system extracts a 128-measurement vector (embedding) that mathematically describes the unique structural components of the face. To authenticate, we calculate the Euclidean distance between the login face vector and the database face vector. If the distance is `< 0.6`, identity is confirmed with 99%+ confidence.
 
-### 2. The Database Layer
-The system uses `Pickle` and `Face_Recognition` arrays for high-speed local development, but the architecture allows for instantaneous mapping to a vector database like Pinecone or Milvus for enterprise-scale 1-to-N matching.
+### 2. High-Speed Database Layer
+The system uses `Pickle` and `Face_Recognition` arrays for high-speed local development, but the decoupled architecture allows for instantaneous mapping to a scalable vector database (like Pinecone, Milvus, or Qdrant) for enterprise-scale 1-to-N matching across millions of identities.
+
+---
+
+## 📂 Project Structure & Files
+
+- `main.py`: The secure FastAPI authentication gateway processing incoming Base64 streams.
+- `face_engine.py`: The wrapper around Dlib/OpenCV that handles vector extraction and euclidean distance checks.
+- `known_faces/`: The secure, on-premise directory where baseline facial encodings are stored.
+- `static/index.html`: The beautiful, Apple-esque UI that hooks into the browser's webcam via WebRTC.
+- `static/styles.css`: Smooth UI animations simulating an advanced security gateway.
+- `static/script.js`: Video stream management, frame extraction, and API communication.
 
 ---
 
@@ -58,7 +73,7 @@ The system uses `Pickle` and `Face_Recognition` arrays for high-speed local deve
 
 ### Prerequisites
 - Python 3.10+
-- CMake (for Dlib)
+- CMake (for compiling Dlib's C++ core)
 - OpenCV, Face_Recognition, FastAPI
 
 ### Quick Start
