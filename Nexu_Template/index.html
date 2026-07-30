@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexu Sentinel | Cognitive Core</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+        
+        body { 
+            background-color: #f0f2f5; 
+            color: #0f172a; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            overflow: hidden; 
+            margin: 0; padding: 0; 
+        }
+        
+        /* Aurora Liquid Background */
+        .aurora-bg {
+            position: absolute; inset: 0; z-index: 0;
+            background: #ffffff;
+            overflow: hidden;
+        }
+        .aurora-layer {
+            position: absolute; border-radius: 50%; filter: blur(100px);
+            animation: liquidFloat ease-in-out infinite alternate;
+            mix-blend-mode: multiply;
+        }
+        .a1 { width: 80vw; height: 80vw; background: rgba(56, 189, 248, 0.2); top: -30%; left: -20%; animation-duration: 22s; }
+        .a2 { width: 70vw; height: 70vw; background: rgba(167, 139, 250, 0.15); bottom: -20%; right: -10%; animation-duration: 28s; animation-delay: -5s; }
+        .a3 { width: 60vw; height: 60vw; background: rgba(52, 211, 153, 0.15); top: 20%; left: 40%; animation-duration: 35s; animation-delay: -15s; }
+
+        @keyframes liquidFloat {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            50% { transform: translate(5%, 10%) scale(1.1) rotate(10deg); }
+            100% { transform: translate(-5%, 5%) scale(0.9) rotate(-5deg); }
+        }
+        
+        /* Spatial Glass Panels */
+        .glass-spatial {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(50px) saturate(150%);
+            -webkit-backdrop-filter: blur(50px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 
+                0 30px 60px -10px rgba(0,0,0,0.05), 
+                inset 0 1px 0 rgba(255,255,255,1),
+                inset 0 -1px 0 rgba(255,255,255,0.5);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass-spatial:hover {
+            background: rgba(255, 255, 255, 0.7);
+            transform: translateY(-4px) scale(1.005);
+            box-shadow: 
+                0 40px 80px -15px rgba(0,0,0,0.08), 
+                inset 0 1px 0 rgba(255,255,255,1);
+        }
+
+        /* Video Container - Ceramic Look */
+        .camera-wrapper {
+            position: relative; overflow: hidden;
+            border-radius: 32px; background: #000;
+            box-shadow: 0 0 0 4px rgba(255,255,255,0.5), 0 20px 50px rgba(0,0,0,0.15);
+            isolation: isolate;
+        }
+        video {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;
+            transform: scaleX(-1);
+        }
+        
+        /* Floating HUD Box */
+        .tracking-box {
+            position: absolute;
+            border: 2px solid rgba(255,255,255,1);
+            border-radius: 16px;
+            background: radial-gradient(circle at center, transparent 40%, rgba(255,255,255,0.1) 100%);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15), inset 0 0 20px rgba(255,255,255,0.2);
+            pointer-events: auto;
+        }
+        /* Corners */
+        .tracking-box::before, .tracking-box::after {
+            content: ''; position: absolute; width: 30px; height: 30px; border: 3px solid; border-radius: 4px;
+        }
+        .tracking-box::before { top: -4px; left: -4px; border-right: none; border-bottom: none; }
+        .tracking-box::after { bottom: -4px; right: -4px; border-left: none; border-top: none; }
+
+        .tracking-label {
+            position: absolute; top: -45px; left: 50%; transform: translateX(-50%);
+            padding: 8px 20px;
+            font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700;
+            color: #fff; letter-spacing: 2px; text-transform: uppercase;
+            border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-register-inline {
+            background: #fff; color: #000;
+            font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700;
+            padding: 12px 24px; border-radius: 40px; cursor: pointer;
+            position: absolute; bottom: -60px; left: 50%; transform: translateX(-50%);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: none; letter-spacing: 1px;
+        }
+        .btn-register-inline:hover {
+            background: #ef4444; color: #fff;
+            transform: translateX(-50%) translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(239, 68, 68, 0.4);
+        }
+
+        /* 3D Holographic Button */
+        .btn-holo {
+            background: rgba(255,255,255,0.9);
+            color: #0f172a;
+            border: 1px solid rgba(255,255,255,1);
+            box-shadow: 
+                0 4px 6px -1px rgba(0,0,0,0.05), 
+                0 20px 40px -10px rgba(0,0,0,0.1),
+                inset 0 1px 0 rgba(255,255,255,1);
+            position: relative; overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1;
+        }
+        .btn-holo::before {
+            content: ''; position: absolute; inset: 0; z-index: -1;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.8), transparent);
+            transform: translateX(-100%); transition: 0.6s;
+        }
+        .btn-holo:hover {
+            transform: translateY(-4px); color: #000;
+            box-shadow: 0 30px 50px -10px rgba(56, 189, 248, 0.3);
+            border-color: rgba(56, 189, 248, 0.5);
+        }
+        .btn-holo:hover::before { transform: translateX(100%); }
+
+        /* Typography Gradients */
+        .text-gradient {
+            background-clip: text; -webkit-background-clip: text; color: transparent;
+            background-image: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+        }
+
+        @keyframes entrySlide {
+            0% { opacity: 0; transform: translateY(50px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .animate-entry { animation: entrySlide 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+    <!-- Fluid Aurora Background -->
+    <div class="aurora-bg">
+        <div class="aurora-layer a1"></div>
+        <div class="aurora-layer a2"></div>
+        <div class="aurora-layer a3"></div>
+    </div>
+
+    <!-- Main Spatial Container -->
+    <div class="z-10 w-full max-w-[1500px] mx-8 grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-8 h-[92vh]">
+        
+        <!-- Camera Panel -->
+        <div class="glass-spatial animate-entry rounded-[40px] p-8 flex flex-col relative" style="animation-delay: 0.1s;">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-8 px-2">
+                <div class="flex items-center gap-6">
+                    <div class="w-16 h-16 rounded-[20px] bg-white border border-slate-100 flex items-center justify-center shadow-lg relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-sky-100 to-transparent opacity-50"></div>
+                        <div class="w-6 h-6 rounded-full border-2 border-slate-800 flex items-center justify-center">
+                            <div class="w-2 h-2 rounded-full bg-sky-500 animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <h1 class="text-4xl font-extrabold tracking-tight text-gradient">Vision OS</h1>
+                        <p class="text-xs text-slate-400 font-bold tracking-[0.2em] uppercase mt-2">Neural Analysis Core</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 bg-white/50 px-4 py-2 rounded-full border border-white">
+                    <div class="text-[10px] font-bold text-slate-500 tracking-widest uppercase" id="status-text">Standby</div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-slate-300 transition-colors duration-500" id="indicator-status"></div>
+                </div>
+            </div>
+
+            <!-- Video Frame -->
+            <div class="camera-wrapper flex-grow w-full">
+                <!-- Initial Splash -->
+                <div id="initOverlay" class="absolute inset-0 bg-white/90 backdrop-blur-xl flex flex-col items-center justify-center z-30 transition-all duration-700">
+                    <div class="flex flex-col items-center">
+                        <div class="text-[80px] font-black text-slate-100 mb-8 select-none">NEXU</div>
+                        <div class="flex gap-4">
+                            <button id="btnStart" class="btn-holo px-8 py-5 rounded-[24px] font-bold tracking-widest text-[11px] uppercase" onclick="startCamera()">Live Camera</button>
+                            <button id="btnUploadVideo" class="btn-holo px-8 py-5 rounded-[24px] font-bold tracking-widest text-[11px] uppercase" onclick="document.getElementById('fileUpload').click()">Analyze Video</button>
+                            <button id="btnUploadImage" class="btn-holo px-8 py-5 rounded-[24px] font-bold tracking-widest text-[11px] uppercase" onclick="document.getElementById('imageUpload').click()">Analyze Image</button>
+                        </div>
+                    </div>
+                    <input type="file" id="fileUpload" accept="video/*" class="hidden" />
+                    <input type="file" id="imageUpload" accept="image/*" class="hidden" />
+                </div>
+
+                <video id="videoFeed" autoplay playsinline class="hidden"></video>
+                <img id="imageFeed" class="hidden absolute top-0 left-0 w-full h-full object-cover" />
+                <div id="hudContainer" class="absolute top-0 left-0 w-full h-full pointer-events-none z-10"></div>
+                
+                <button id="btnStop" class="hidden absolute top-6 right-6 z-40 bg-white/90 backdrop-blur text-red-500 px-6 py-3 rounded-full font-bold text-[10px] shadow-xl border border-red-100 hover:bg-red-50 hover:scale-105 transition-all tracking-[0.2em] uppercase" onclick="stopCamera()">Terminate</button>
+            </div>
+        </div>
+
+        <!-- Telemetry Panel -->
+        <div class="glass-spatial animate-entry rounded-[40px] p-8 flex flex-col" style="animation-delay: 0.3s;">
+            <div class="flex items-center gap-4 mb-10 px-2">
+                <div class="w-1.5 h-6 bg-slate-800 rounded-full"></div>
+                <h2 class="text-slate-800 font-bold text-sm tracking-[0.2em] uppercase">Metrics</h2>
+            </div>
+
+            <div class="space-y-6 flex-grow flex flex-col">
+                <!-- Data Blocks -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white/70 rounded-[24px] p-6 border border-white shadow-sm flex flex-col justify-center">
+                        <div class="text-[10px] font-bold tracking-[0.1em] text-slate-400 mb-2 uppercase">Latency</div>
+                        <div id="stat-latency" class="text-4xl font-extrabold text-slate-800 tracking-tighter">--<span class="text-base text-slate-400 ml-1 font-normal">ms</span></div>
+                    </div>
+                    <div class="bg-white/70 rounded-[24px] p-6 border border-white shadow-sm flex flex-col justify-center">
+                        <div class="text-[10px] font-bold tracking-[0.1em] text-slate-400 mb-2 uppercase">Identities</div>
+                        <div id="stat-db" class="text-4xl font-extrabold text-sky-500 tracking-tighter">0</div>
+                    </div>
+                </div>
+
+                <!-- Engine Status -->
+                <div class="bg-white/70 rounded-[24px] p-6 border border-white shadow-sm relative overflow-hidden">
+                    <div class="flex justify-between items-end mb-4 relative z-10">
+                        <div class="text-[10px] font-bold tracking-[0.1em] text-slate-400 uppercase">Engine Core</div>
+                        <div class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-full border border-indigo-100">DeepFace Inception</div>
+                    </div>
+                    <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden relative z-10">
+                        <div class="h-full bg-slate-800 w-full relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-full h-full bg-white/40" style="animation: sweep 2s infinite linear; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);"></div>
+                        </div>
+                    </div>
+                    <style>@keyframes sweep { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }</style>
+                </div>
+                
+                <!-- Terminal -->
+                <div class="bg-white rounded-[24px] p-6 shadow-sm border border-slate-100 flex-grow overflow-y-auto flex flex-col font-mono text-[11px] leading-relaxed relative">
+                    <div class="absolute top-0 left-0 w-full h-10 bg-gradient-to-b from-white to-transparent pointer-events-none"></div>
+                    <div id="sys-log" class="mt-auto space-y-3 pb-2 pt-10">
+                        <div class="text-slate-400 flex items-center gap-3">
+                            <div class="w-1.5 h-1.5 rounded-full bg-sky-400"></div> System loaded.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Modal -->
+    <div id="reg-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-slate-900/10 backdrop-blur-xl opacity-0 pointer-events-none transition-all duration-500">
+        <div class="modal-content glass-spatial p-12 rounded-[40px] w-[460px] transform scale-95 transition-all duration-500">
+            <h3 class="text-3xl font-extrabold mb-3 text-slate-800 tracking-tight">New Subject</h3>
+            <p class="text-sm text-slate-500 mb-8 font-medium">Input designation to write facial encoding to memory.</p>
+            
+            <input type="text" id="reg-name" placeholder="Name" class="w-full bg-white border-none rounded-[20px] px-6 py-5 text-slate-800 font-bold focus:outline-none focus:ring-4 focus:ring-sky-100 transition-all mb-8 shadow-sm text-lg">
+            
+            <div class="flex gap-4">
+                <button onclick="closeModal()" class="flex-1 py-4 rounded-[20px] bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors font-bold text-xs tracking-widest uppercase">Dismiss</button>
+                <button onclick="submitRegistration()" class="flex-1 py-4 rounded-[20px] bg-slate-800 hover:bg-black text-white transition-colors font-bold text-xs tracking-widest uppercase shadow-xl">Authorize</button>
+            </div>
+        </div>
+    </div>
+    <style>
+        .modal.active { opacity: 1; pointer-events: auto; }
+        .modal.active .modal-content { transform: scale(1); }
+    </style>
+
+    <script>
+        const video = document.getElementById('videoFeed');
+        const imageFeed = document.getElementById('imageFeed');
+        const hudContainer = document.getElementById('hudContainer');
+        const btnStop = document.getElementById('btnStop');
+        const imageUpload = document.getElementById('imageUpload');
+        const initOverlay = document.getElementById('initOverlay');
+        const indicatorStatus = document.getElementById('indicator-status');
+        const statusText = document.getElementById('status-text');
+        const sysLog = document.getElementById('sys-log');
+        const statLatency = document.getElementById('stat-latency');
+        const statDb = document.getElementById('stat-db');
+        const modal = document.getElementById('reg-modal');
+        const regNameInput = document.getElementById('reg-name');
+        
+        let stream = null;
+        let isRunning = false;
+        let activeSource = 'live';
+        let currentBoxes = {};
+        let registrationFrameUrl = null;
+        
+        const captureCanvas = document.createElement('canvas');
+        const cCtx = captureCanvas.getContext('2d');
+
+        function logEvent(msg, type='info') {
+            const div = document.createElement('div');
+            let colorClass = 'text-slate-500';
+            let dotColor = 'bg-slate-300';
+            
+            if(type === 'error') { colorClass = 'text-red-500 font-bold'; dotColor = 'bg-red-500'; }
+            if(type === 'success') { colorClass = 'text-emerald-500 font-bold'; dotColor = 'bg-emerald-500'; }
+            if(type === 'warn') { colorClass = 'text-amber-500 font-bold'; dotColor = 'bg-amber-400'; }
+            
+            div.className = `${colorClass} flex items-center gap-3 opacity-0 animate-[entrySlide_0.3s_forwards]`;
+            div.innerHTML = `<div class="w-1.5 h-1.5 rounded-full ${dotColor}"></div> ${msg}`;
+            sysLog.appendChild(div);
+            sysLog.parentElement.scrollTop = sysLog.parentElement.scrollHeight;
+        }
+
+        async function startCamera() {
+            try {
+                if(stream) { stream.getTracks().forEach(track => track.stop()); stream = null; }
+                imageFeed.classList.add('hidden');
+                
+                stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } });
+                video.srcObject = stream;
+                video.classList.remove('hidden');
+                
+                initOverlay.style.opacity = '0';
+                initOverlay.style.transform = 'scale(1.05)';
+                setTimeout(() => initOverlay.classList.add('hidden'), 700);
+                
+                btnStop.classList.remove('hidden');
+                indicatorStatus.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_rgba(52,211,153,0.8)]";
+                statusText.textContent = "LIVE";
+                statusText.classList.add('text-emerald-500');
+                
+                activeSource = 'live';
+                logEvent("Camera optical stream established.", "success");
+                
+                video.onloadedmetadata = () => {
+                    captureCanvas.width = video.videoWidth;
+                    captureCanvas.height = video.videoHeight;
+                    isRunning = true;
+                    processFrame();
+                };
+            } catch (err) {
+                logEvent("Camera block: " + err.message, "error");
+            }
+        }
+
+        imageUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if(!file) return;
+            
+            if(stream) { stream.getTracks().forEach(track => track.stop()); stream = null; }
+            video.pause();
+            video.removeAttribute('src');
+            video.removeAttribute('srcObject');
+            video.classList.add('hidden');
+            
+            imageFeed.src = URL.createObjectURL(file);
+            imageFeed.classList.remove('hidden');
+            
+            initOverlay.style.opacity = '0';
+            initOverlay.style.transform = 'scale(1.05)';
+            setTimeout(() => initOverlay.classList.add('hidden'), 700);
+            
+            btnStop.classList.remove('hidden');
+            indicatorStatus.className = "w-2.5 h-2.5 rounded-full bg-sky-400 shadow-[0_0_10px_rgba(56,189,248,0.8)]";
+            statusText.textContent = "SCANNING";
+            statusText.classList.add('text-sky-500');
+            
+            activeSource = 'image';
+            logEvent("Static asset received.", "warn");
+            
+            imageFeed.onload = async () => {
+                captureCanvas.width = imageFeed.naturalWidth;
+                captureCanvas.height = imageFeed.naturalHeight;
+                cCtx.drawImage(imageFeed, 0, 0, captureCanvas.width, captureCanvas.height);
+                const dataUrl = captureCanvas.toDataURL('image/jpeg', 0.8);
+                
+                isRunning = false; 
+                
+                try {
+                    const res = await fetch('/api/detect', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ image_base64: dataUrl })
+                    });
+                    const data = await res.json();
+                    
+                    if(data.status === 'success') {
+                        updateHUD(data.faces);
+                        statDb.textContent = data.telemetry.db_size;
+                        statLatency.innerHTML = data.telemetry.execution_ms.replace('ms', '<span class="text-base text-slate-400 ml-1 font-normal">ms</span>');
+                    }
+                } catch(err) {}
+            };
+        });
+
+        document.getElementById('fileUpload').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if(!file) return;
+            
+            if(stream) { stream.getTracks().forEach(track => track.stop()); stream = null; }
+            imageFeed.removeAttribute('src');
+            imageFeed.classList.add('hidden');
+            
+            video.srcObject = null;
+            video.src = URL.createObjectURL(file);
+            video.loop = true;
+            video.muted = true;
+            video.classList.remove('hidden');
+            
+            initOverlay.style.opacity = '0';
+            initOverlay.style.transform = 'scale(1.05)';
+            setTimeout(() => initOverlay.classList.add('hidden'), 700);
+            
+            btnStop.classList.remove('hidden');
+            indicatorStatus.className = "w-2.5 h-2.5 rounded-full bg-purple-400 animate-pulse shadow-[0_0_10px_rgba(192,132,252,0.8)]";
+            statusText.textContent = "PROCESSING";
+            statusText.classList.add('text-purple-500');
+            
+            activeSource = 'video';
+            logEvent("Video stream parsing initiated.", "warn");
+            
+            video.onloadeddata = () => {
+                captureCanvas.width = video.videoWidth;
+                captureCanvas.height = video.videoHeight;
+                video.play();
+                isRunning = true;
+                processFrame();
+            };
+        });
+
+        function stopCamera() {
+            if(stream) stream.getTracks().forEach(track => track.stop());
+            stream = null;
+            video.pause();
+            video.removeAttribute('src');
+            video.removeAttribute('srcObject');
+            imageFeed.removeAttribute('src');
+            isRunning = false;
+            initOverlay.classList.remove('hidden');
+            setTimeout(() => {
+                initOverlay.style.opacity = '1';
+                initOverlay.style.transform = 'scale(1)';
+            }, 50);
+            btnStop.classList.add('hidden');
+            
+            indicatorStatus.className = "w-2.5 h-2.5 rounded-full bg-slate-300";
+            statusText.textContent = "STANDBY";
+            statusText.className = "text-[10px] font-bold text-slate-500 tracking-widest uppercase";
+            
+            hudContainer.innerHTML = '';
+            currentBoxes = {};
+            
+            statDb.textContent = "0";
+            statLatency.innerHTML = `--<span class="text-base text-slate-400 ml-1 font-normal">ms</span>`;
+            logEvent("Sensors offline.", "error");
+        }
+
+        function triggerRegister() {
+            if(activeSource === 'image') {
+                registrationFrameUrl = captureCanvas.toDataURL('image/jpeg', 0.8);
+            } else {
+                cCtx.drawImage(video, 0, 0, captureCanvas.width, captureCanvas.height);
+                registrationFrameUrl = captureCanvas.toDataURL('image/jpeg', 0.8);
+            }
+            regNameInput.value = '';
+            modal.classList.add('active');
+            regNameInput.focus();
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+            registrationFrameUrl = null;
+        }
+
+        async function submitRegistration() {
+            const name = regNameInput.value.trim();
+            if(!name || !registrationFrameUrl) return;
+            
+            closeModal();
+            logEvent(`Registering [${name}]...`, "warn");
+            
+            try {
+                const res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ image_base64: registrationFrameUrl, name: name })
+                });
+                const data = await res.json();
+                
+                if(data.status === 'success') {
+                    logEvent(data.message, "success");
+                } else {
+                    logEvent(data.message, "error");
+                }
+            } catch(e) {
+                logEvent("Network failure.", "error");
+            }
+        }
+
+        function updateHUD(faces) {
+            const seenIds = new Set();
+            const sourceWidth = activeSource === 'image' ? imageFeed.naturalWidth : video.videoWidth;
+            const sourceHeight = activeSource === 'image' ? imageFeed.naturalHeight : video.videoHeight;
+            const clientWidth = activeSource === 'image' ? imageFeed.clientWidth : video.clientWidth;
+            const clientHeight = activeSource === 'image' ? imageFeed.clientHeight : video.clientHeight;
+            
+            faces.forEach((f, idx) => {
+                const id = `face-${idx}`;
+                seenIds.add(id);
+                
+                const videoRatio = sourceWidth / sourceHeight;
+                const containerRatio = clientWidth / clientHeight;
+                let drawWidth, drawHeight, offsetX = 0, offsetY = 0;
+                
+                if (containerRatio > videoRatio) {
+                    drawWidth = clientWidth; drawHeight = clientWidth / videoRatio; offsetY = (clientHeight - drawHeight) / 2;
+                } else {
+                    drawHeight = clientHeight; drawWidth = clientHeight * videoRatio; offsetX = (clientWidth - drawWidth) / 2;
+                }
+
+                const scaleX = drawWidth / sourceWidth; const scaleY = drawHeight / sourceHeight;
+                const w = f.width * scaleX; const h = f.height * scaleY;
+                
+                let realX;
+                if (activeSource === 'live') {
+                    realX = clientWidth - ((f.x * scaleX) + w + offsetX);
+                } else {
+                    realX = (f.x * scaleX) + offsetX;
+                }
+                const realY = (f.y * scaleY) + offsetY;
+
+                let box = currentBoxes[id];
+                const isUnknown = f.label === 'UNKNOWN';
+                
+                // Colors
+                const mainColor = isUnknown ? '#ef4444' : '#ffffff';
+                const mainColorBox = isUnknown ? '#ef4444' : '#10b981';
+                
+                if(!box) {
+                    box = document.createElement('div');
+                    box.className = 'tracking-box';
+                    box.id = id;
+                    
+                    const label = document.createElement('div');
+                    label.className = 'tracking-label';
+                    
+                    const regBtn = document.createElement('button');
+                    regBtn.className = 'btn-register-inline';
+                    regBtn.textContent = 'AUTHORIZE IDENTITY';
+                    regBtn.onclick = triggerRegister;
+                    
+                    box.appendChild(label);
+                    box.appendChild(regBtn);
+                    hudContainer.appendChild(box);
+                    currentBoxes[id] = box;
+                }
+                
+                box.style.left = `${realX}px`; box.style.top = `${realY}px`;
+                box.style.width = `${w}px`; box.style.height = `${h}px`;
+                box.style.borderColor = mainColorBox;
+                box.style.setProperty('--tw-border-opacity', '1');
+                
+                const label = box.querySelector('.tracking-label');
+                box.className = 'tracking-box'; 
+                
+                if(isUnknown) {
+                    label.textContent = `UNKNOWN ${(f.confidence*100).toFixed(0)}%`;
+                    label.style.background = 'rgba(239, 68, 68, 0.9)';
+                    box.querySelector('.btn-register-inline').style.display = 'block';
+                    box.style.boxShadow = '0 8px 30px rgba(239, 68, 68, 0.3), inset 0 0 20px rgba(239, 68, 68, 0.2)';
+                } else {
+                    label.textContent = `${f.label} ${(f.confidence*100).toFixed(0)}%`;
+                    label.style.background = 'rgba(16, 185, 129, 0.9)';
+                    box.querySelector('.btn-register-inline').style.display = 'none';
+                    box.style.boxShadow = '0 8px 30px rgba(16, 185, 129, 0.3), inset 0 0 20px rgba(16, 185, 129, 0.2)';
+                }
+            });
+            
+            Object.keys(currentBoxes).forEach(id => {
+                if(!seenIds.has(id)) {
+                    currentBoxes[id].style.opacity = '0';
+                    currentBoxes[id].style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        if(currentBoxes[id]) { currentBoxes[id].remove(); delete currentBoxes[id]; }
+                    }, 200);
+                }
+            });
+        }
+
+        async function processFrame() {
+            if(!isRunning) return;
+            cCtx.drawImage(video, 0, 0, captureCanvas.width, captureCanvas.height);
+            const dataUrl = captureCanvas.toDataURL('image/jpeg', 0.6); 
+
+            try {
+                const res = await fetch('/api/detect', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ image_base64: dataUrl })
+                });
+                const data = await res.json();
+                
+                if(data.status === 'success') {
+                    updateHUD(data.faces);
+                    statDb.textContent = data.telemetry.db_size;
+                    statLatency.innerHTML = data.telemetry.execution_ms.replace('ms', '<span class="text-base text-slate-400 ml-1 font-normal">ms</span>');
+                }
+            } catch(e) {}
+            setTimeout(processFrame, 150);
+        }
+    </script>
+</body>
+</html>

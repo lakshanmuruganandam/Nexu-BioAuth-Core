@@ -1,0 +1,42 @@
+INFO:     Started server process [31229]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8005 (Press CTRL+C to quit)
+Loading datasets...
+[Dataset] Error loading Scarlett Johansson: Exception while loading dataset/Scarlett Johansson.jpg
+[Dataset] Registered: Lionel Messi
+[Dataset] Registered: char2
+[Dataset] Registered: char3
+[Dataset] Registered: char1
+[Dataset] Registered: char4
+[Dataset] Registered: char5
+[Dataset] Registered: Elon Musk
+[Dataset] Registered: Taylor Swift
+[Dataset] Registered: Bill Gates
+INFO:     127.0.0.1:60073 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60075 - "POST /api/detect HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60077 - "POST /api/detect HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60079 - "POST /api/detect HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60081 - "POST /api/detect HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60083 - "POST /api/detect HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60085 - "POST /api/detect HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60087 - "POST /api/detect HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60089 - "POST /api/detect HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60091 - "POST /api/detect HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60093 - "POST /api/detect HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60095 - "POST /api/detect HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60097 - "POST /api/detect HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60099 - "POST /api/detect HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60101 - "POST /api/detect HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60103 - "POST /api/register HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60110 - "POST /api/detect HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60112 - "POST /api/detect HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60115 - "POST /api/detect HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60117 - "POST /api/detect HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60119 - "POST /api/detect HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60122 - "POST /api/detect HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60126 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60128 - "POST /api/detect HTTP/1.1" 422 Unprocessable Content
+INFO:     127.0.0.1:60147 - "GET /api/ HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60147 - "POST /api/detect HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60257 - "GET / HTTP/1.1" 200 OK
